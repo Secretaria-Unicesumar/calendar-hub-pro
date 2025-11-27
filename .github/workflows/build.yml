@@ -1,4 +1,4 @@
-# Arquivo .github/workflows/deploy.yml corrigido
+# .github/workflows/deploy.yml
 
 name: Build e Deploy para GitHub Pages
 
@@ -6,8 +6,17 @@ on:
     push:
         branches:
             - main
+    # Permite executar o workflow manualmente
+    workflow_dispatch:
+
+# Permissões necessárias para que o deploy funcione
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
 jobs:
-    deploy:
+    build-and-deploy:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout do Código
@@ -16,15 +25,26 @@ jobs:
             - name: Configurar Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: '18.x'
+                  node-version: '18.x' # Mantenha a versão que você usa
                   
+            # 1. Instala dependências e faz o build (Cria a pasta 'dist')
             - name: Instalar Dependências e Fazer Build
               run: |
                   npm ci
-                  npm run build # Gera a pasta 'dist'
+                  npm run build 
 
-            - name: Deploy para GitHub Pages
-              uses: peaceiris/actions-gh-pages@v3
+            # 2. Configura o ambiente do GitHub Pages
+            - name: Configurar GitHub Pages
+              uses: actions/configure-pages@v5
+
+            # 3. Faz o upload do artefato (os arquivos estáticos)
+            - name: Fazer Upload do Artefato
+              uses: actions/upload-pages-artifact@v3
               with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_dir: ./dist # CORREÇÃO APLICADA AQUI
+                  # O caminho da pasta de build do seu projeto Vite
+                  path: './dist'
+
+            # 4. Faz o deploy final para o GitHub Pages
+            - name: Deploy para GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
