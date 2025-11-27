@@ -1,23 +1,22 @@
-name: deploy
+name: Deploy
 on:
     push:
         branches:
-            - main ###IMPORTANTE: Isso diz que o código será rodado uando houverem pushes na main (preferivelmente coloque mais branches, nunca dê push na main)
-jobs: #tarefas a fazer
+            - main # O fluxo de trabalho é executado em pushes para a branch 'main'
+jobs: # Tarefas a fazer
     deploy:
-        runs-on: ubuntu-20.04 #OS do servidor que o Pages vai hospedar
-        steps: #indica as tecnologias a serem usadas
-                - uses: actions/checkout@v2
-                - uses: actions/setup-node@v1
-                with: 
-                    node-version: '18.x' #18.0 pra cima
-                - name: Build web-app
-                run: |
-                    npm ci
-                    npm run build
-                #faz a build do projeto
-                - name: Deploy to gh-pages
-                uses: peaceiris/actions-gh-pages@v3
-                with:
-                    github_token: ${{ secrets.GITHUB_TOKEN }}
-                    publish_dir: ./build
+        runs-on: ubuntu-latest # Usando 'ubuntu-latest' é preferível
+        steps: # Passos para esta tarefa
+            - uses: actions/checkout@v4 # Atualizado para v4
+            - uses: actions/setup-node@v4 # Atualizado para v4
+              with:
+                  node-version: '18.x' # Versão Node.js
+            - name: Build web-app
+              run: | # O comando 'run' deve estar na mesma linha que 'name' ou 'uses'
+                  npm ci
+                  npm run build 
+            - name: Deploy to gh-pages
+              uses: peaceiris/actions-gh-pages@v3 # Esta ação é comumente usada e está ok
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: ./build # O diretório de saída da sua build
