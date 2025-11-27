@@ -41,8 +41,15 @@ export const parseCSV = async (csvText: string): Promise<CalendarEvent[]> => {
 export const loadCalendarData = async (): Promise<CalendarEvent[]> => {
   try {
     const response = await fetch('/data/calendario.csv');
-    const text = await response.text();
-    return parseCSV(text);
+    const blob = await response.blob();
+    
+    // Decode ANSI/Windows-1252 encoding
+    const text = await blob.text();
+    const decoder = new TextDecoder('windows-1252');
+    const arrayBuffer = await blob.arrayBuffer();
+    const decodedText = decoder.decode(arrayBuffer);
+    
+    return parseCSV(decodedText);
   } catch (error) {
     console.error('Error loading calendar data:', error);
     return [];
