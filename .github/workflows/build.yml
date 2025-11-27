@@ -1,22 +1,30 @@
-name: Deploy
+# Arquivo .github/workflows/deploy.yml corrigido
+
+name: Build e Deploy para GitHub Pages
+
 on:
     push:
         branches:
-            - main # O fluxo de trabalho é executado em pushes para a branch 'main'
-jobs: # Tarefas a fazer
+            - main
+jobs:
     deploy:
-        runs-on: ubuntu-latest # Usando 'ubuntu-latest' é preferível
-        steps: # Passos para esta tarefa
-            - uses: actions/checkout@v4 # Atualizado para v4
-            - uses: actions/setup-node@v4 # Atualizado para v4
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout do Código
+              uses: actions/checkout@v4
+
+            - name: Configurar Node.js
+              uses: actions/setup-node@v4
               with:
-                  node-version: '18.x' # Versão Node.js
-            - name: Build web-app
-              run: | # O comando 'run' deve estar na mesma linha que 'name' ou 'uses'
+                  node-version: '18.x'
+                  
+            - name: Instalar Dependências e Fazer Build
+              run: |
                   npm ci
-                  npm run build 
-            - name: Deploy to gh-pages
-              uses: peaceiris/actions-gh-pages@v3 # Esta ação é comumente usada e está ok
+                  npm run build # Gera a pasta 'dist'
+
+            - name: Deploy para GitHub Pages
+              uses: peaceiris/actions-gh-pages@v3
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_dir: ./build # O diretório de saída da sua build
+                  publish_dir: ./dist # CORREÇÃO APLICADA AQUI
