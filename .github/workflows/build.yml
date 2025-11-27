@@ -1,15 +1,14 @@
-# .github/workflows/deploy.yml
-
 name: Build e Deploy para GitHub Pages
 
 on:
     push:
         branches:
-            - main
-    # Permite executar o workflow manualmente
+            - main # O deploy será acionado em pushes para a branch principal
+    # Permite executar o workflow manualmente pela interface do GitHub
     workflow_dispatch:
 
-# Permissões necessárias para que o deploy funcione
+# Permissões exigidas pelo GitHub Actions para o deploy de Pages.
+# Elas substituem o 'github_token' na action de terceiros.
 permissions:
     contents: read
     pages: write
@@ -22,29 +21,32 @@ jobs:
             - name: Checkout do Código
               uses: actions/checkout@v4
 
+            # Configura o ambiente Node.js. Versão 18 é compatível com o seu 'package.json'.
             - name: Configurar Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: '18.x' # Mantenha a versão que você usa
+                  node-version: '18.x'
                   
-            # 1. Instala dependências e faz o build (Cria a pasta 'dist')
+            # 1. Instala dependências e faz o build
             - name: Instalar Dependências e Fazer Build
               run: |
-                  npm ci
+                  # NOTA: O '--legacy-peer-deps' é NECESSÁRIO devido ao erro ERESOLVE 
+                  # que você está enfrentando com 'react-day-picker' e 'date-fns'.
+                  npm ci --legacy-peer-deps
                   npm run build 
 
-            # 2. Configura o ambiente do GitHub Pages
+            # 2. Configura o ambiente do GitHub Pages (Action Oficial)
             - name: Configurar GitHub Pages
               uses: actions/configure-pages@v5
 
-            # 3. Faz o upload do artefato (os arquivos estáticos)
+            # 3. Faz o upload dos arquivos estáticos gerados pelo Vite (pasta 'dist')
             - name: Fazer Upload do Artefato
               uses: actions/upload-pages-artifact@v3
               with:
-                  # O caminho da pasta de build do seu projeto Vite
+                  # O Vite gera o build final na pasta 'dist'
                   path: './dist'
 
-            # 4. Faz o deploy final para o GitHub Pages
+            # 4. Faz o deploy final para o GitHub Pages (Action Oficial)
             - name: Deploy para GitHub Pages
               id: deployment
               uses: actions/deploy-pages@v4
