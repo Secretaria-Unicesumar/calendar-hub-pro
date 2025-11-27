@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { CalendarEvent } from "@/types/calendar";
 import { loadCalendarData } from "@/utils/csvParser";
 import { CalendarHeader } from "@/components/Calendar/CalendarHeader";
@@ -6,6 +6,7 @@ import { CalendarGrid } from "@/components/Calendar/CalendarGrid";
 import { YearView } from "@/components/Calendar/YearView";
 import { EventDetailsDialog } from "@/components/Calendar/EventDetailsDialog";
 import { ModuleLegend } from "@/components/Calendar/ModuleLegend";
+import { CalendarFilters } from "@/components/Calendar/CalendarFilters";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,7 +18,24 @@ const Index = () => {
   const [selectedEvents, setSelectedEvents] = useState<CalendarEvent[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const { toast } = useToast();
+  
+  // Filter events based on selected modules and categories
+  const filteredEvents = useMemo(() => {
+    let filtered = events;
+    
+    if (selectedModules.length > 0) {
+      filtered = filtered.filter((event) => selectedModules.includes(event.modulo));
+    }
+    
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter((event) => selectedCategories.includes(event.categoria));
+    }
+    
+    return filtered;
+  }, [events, selectedModules, selectedCategories]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -96,7 +114,16 @@ const Index = () => {
         </div>
 
         <div className="space-y-6">
-          <ModuleLegend events={events} />
+          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+            <ModuleLegend events={filteredEvents} />
+            <CalendarFilters
+              events={events}
+              selectedModules={selectedModules}
+              selectedCategories={selectedCategories}
+              onModulesChange={setSelectedModules}
+              onCategoriesChange={setSelectedCategories}
+            />
+          </div>
           
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <CalendarHeader
@@ -112,13 +139,13 @@ const Index = () => {
             {view === 'month' ? (
               <CalendarGrid
                 currentDate={currentDate}
-                events={events}
+                events={filteredEvents}
                 onDayClick={handleDayClick}
               />
             ) : (
               <YearView
                 currentDate={currentDate}
-                events={events}
+                events={filteredEvents}
                 onMonthClick={handleMonthClickFromYearView}
               />
             )}
