@@ -47,6 +47,16 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        module: {
+          1: "hsl(var(--module-1))",
+          2: "hsl(var(--module-2))",
+          3: "hsl(var(--module-3))",
+          4: "hsl(var(--module-4))",
+          5: "hsl(var(--module-5))",
+          6: "hsl(var(--module-6))",
+          7: "hsl(var(--module-7))",
+          8: "hsl(var(--module-8))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
